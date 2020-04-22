@@ -193,7 +193,7 @@ def usquery(id):
         MainScreen()
         return
     if ch==7:
-        mycursor.execute("SELECT symptoms,sickness from orderr,drug where uid="+str(id)+" and drug.drid=orderr.drid group by drug.drid order by count(*) desc;")
+        mycursor.execute("SELECT symptoms,sickness from orderr,drug where uid="+str(id)+" and drug.drid=orderr.drid group by drug.drid order by sum(orderr.price/drug.price) desc;")
         res = mycursor.fetchall()
         if len(res) == 0:
             print("No results.")
