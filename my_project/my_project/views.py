@@ -15,3 +15,6 @@ def login(request):
 def index(request):
     return render(request, "index.html")
 
+
+def queries(request):
+    return render(request, "queries.html")
