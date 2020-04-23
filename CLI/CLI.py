@@ -1,4 +1,5 @@
 import csv
+import hashlib
 import subprocess
 import math
 import mysql.connector as mc
@@ -33,8 +34,9 @@ def UserMenu():
         spamreader = csv.reader(file, delimiter=',', quotechar='"')
         for row in spamreader:
             reguser.append(row)
+    encpass=hashlib.md5(passw.encode()).hexdigest()
     for d in reguser:
-        if d[0]==id and d[1]==passw:
+        if d[0]==id and d[1]==encpass:
             usquery(id)
             return
     print("Wrong ID/Password, going to Main screen")
@@ -51,8 +53,10 @@ def DoctorMenu():
         spamreader = csv.reader(file, delimiter=',', quotechar='"')
         for row in spamreader:
             reguser.append(row)
+
+    encpass = hashlib.md5(passw.encode()).hexdigest()
     for d in reguser:
-        if d[0] == id and d[1] == passw:
+        if d[0] == id and d[1] == encpass:
             docquery(id)
             return
     print("Wrong ID/Password, going to Main screen")
@@ -69,8 +73,10 @@ def CompanyMenu():
         spamreader = csv.reader(file, delimiter=',', quotechar='"')
         for row in spamreader:
             reguser.append(row)
+
+    encpass = hashlib.md5(passw.encode()).hexdigest()
     for d in reguser:
-        if d[0] == id and d[1] == passw:
+        if d[0] == id and d[1] == encpass:
             compquery(id)
             return
     print("Wrong ID/Password, going to Main screen")
@@ -87,8 +93,9 @@ def LabMenu():
         spamreader = csv.reader(file, delimiter=',', quotechar='"')
         for row in spamreader:
             reguser.append(row)
+    encpass = hashlib.md5(passw.encode()).hexdigest()
     for d in reguser:
-        if d[0] == id and d[1] == passw:
+        if d[0] == id and d[1] == encpass:
             labquery(id)
             return
     print("Wrong ID/Password, going to Main screen")
@@ -105,8 +112,9 @@ def DAMenu():
         spamreader = csv.reader(file, delimiter=',', quotechar='"')
         for row in spamreader:
             reguser.append(row)
+    encpass = hashlib.md5(passw.encode()).hexdigest()
     for d in reguser:
-        if d[0] == id and d[1] == passw:
+        if d[0] == id and d[1] == encpass:
             daquery(id)
             return
     print("Wrong ID/Password, going to Main screen")
