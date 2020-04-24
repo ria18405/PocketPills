@@ -1,13 +1,14 @@
 import csv
+import hashlib
 import subprocess
 import math
 import mysql.connector as mc
 mydb=mc.connect(host="localhost",
   user="root",
-  passwd="xxxx",auth_plugin='mysql_native_password',database="Health")
+  passwd="iamtheannabelle",auth_plugin='mysql_native_password',database="Health")
 def MainScreen():
-    print("Login/Signup as:")
-    print("1.User\n2.Doctor\n3.Company\n4.Lab\n5.Delivery Agency\n0.Exit")
+    print("Login as:")
+    print("1.User\n2.Doctor\n3.Company\n4.Lab\n5.Delivery Agency\n6.Retailer\n0.Exit")
     logch=int(input())
     if logch==1:
         UserMenu()
@@ -19,6 +20,8 @@ def MainScreen():
         LabMenu()
     if logch==5:
         DAMenu()
+    if logch==6:
+        RetailerMenu()
     if logch==0:
         exit(0)
 
@@ -33,8 +36,9 @@ def UserMenu():
         spamreader = csv.reader(file, delimiter=',', quotechar='"')
         for row in spamreader:
             reguser.append(row)
+    encpass=hashlib.md5(passw.encode()).hexdigest()
     for d in reguser:
-        if d[0]==id and d[1]==passw:
+        if d[0]==id and d[1]==encpass:
             usquery(id)
             return
     print("Wrong ID/Password, going to Main screen")
@@ -51,8 +55,10 @@ def DoctorMenu():
         spamreader = csv.reader(file, delimiter=',', quotechar='"')
         for row in spamreader:
             reguser.append(row)
+
+    encpass = hashlib.md5(passw.encode()).hexdigest()
     for d in reguser:
-        if d[0] == id and d[1] == passw:
+        if d[0] == id and d[1] == encpass:
             docquery(id)
             return
     print("Wrong ID/Password, going to Main screen")
@@ -69,8 +75,10 @@ def CompanyMenu():
         spamreader = csv.reader(file, delimiter=',', quotechar='"')
         for row in spamreader:
             reguser.append(row)
+
+    encpass = hashlib.md5(passw.encode()).hexdigest()
     for d in reguser:
-        if d[0] == id and d[1] == passw:
+        if d[0] == id and d[1] == encpass:
             compquery(id)
             return
     print("Wrong ID/Password, going to Main screen")
@@ -87,8 +95,9 @@ def LabMenu():
         spamreader = csv.reader(file, delimiter=',', quotechar='"')
         for row in spamreader:
             reguser.append(row)
+    encpass = hashlib.md5(passw.encode()).hexdigest()
     for d in reguser:
-        if d[0] == id and d[1] == passw:
+        if d[0] == id and d[1] == encpass:
             labquery(id)
             return
     print("Wrong ID/Password, going to Main screen")
@@ -105,9 +114,29 @@ def DAMenu():
         spamreader = csv.reader(file, delimiter=',', quotechar='"')
         for row in spamreader:
             reguser.append(row)
+    encpass = hashlib.md5(passw.encode()).hexdigest()
     for d in reguser:
-        if d[0] == id and d[1] == passw:
+        if d[0] == id and d[1] == encpass:
             daquery(id)
+            return
+    print("Wrong ID/Password, going to Main screen")
+    MainScreen()
+
+def RetailerMenu():
+    print("Login as Retailer/User:")
+    print("ID:")
+    id=input()
+    print("Password")
+    passw=input()
+    reguser=[]
+    with open('userpass.csv', newline='') as file:
+        spamreader = csv.reader(file, delimiter=',', quotechar='"')
+        for row in spamreader:
+            reguser.append(row)
+    encpass=hashlib.md5(passw.encode()).hexdigest()
+    for d in reguser:
+        if d[0]==id and d[1]==encpass:
+            retquery(id)
             return
     print("Wrong ID/Password, going to Main screen")
     MainScreen()
@@ -621,4 +650,115 @@ def daquery(id):
     print("\n\n")
     daquery(id)
 
+def retquery(id):
+    mycursor = mydb.cursor()
+    print("Select Query:")
+    print("1:Are we getting better prices for medicines from the online store?:")
+    print("2:Count the orders placed by that retailer:")
+    print("3:Which drugs are in high demand?:")
+    print("4:Better alternatives to a drug :")
+    print("5:Reviews of drugs they are selling have satisfactory results:")
+    print("6:Alternative drugs based on order history (BONUS)")
+    print("0:MainScreen")
+    ch=int(input())
+    if ch==1:
+        print("Input Drug Name:")
+        drug = input()
+        mycursor.execute("SELECT DrID,DrName,Price FROM Drug WHERE DRName=\"" + drug + "\";")
+        res = mycursor.fetchall()
+        if len(res) == 0:
+            print("No results.")
+        else:
+            for d in res:
+                print("ID:%s Name:%s Price:%s" % (d[0], d[1], d[2]))
+    if ch==2:
+        mycursor.execute(
+            "SELECT OID,Drug.DrID,Drname,symptoms,sickness,orderr.price/drug.price FROM Drug,Orderr WHERE Drug.DrID=Orderr.DrID and UID="+str(id))
+        res = mycursor.fetchall()
+        if len(res) == 0:
+            print("No results.")
+        else:
+            for d in res:
+                print("Order ID:%s DrID:%s Drug:%s Symptoms%s Sickness%s Quantity ordered:%d" % (d[0], d[1], d[2], d[3], d[4], int(d[5])))
+
+    if ch==3:
+        mycursor.execute(
+            "SELECT Drug.DrID,Drname,symptoms,sickness,sum(orderr.price/drug.price) FROM Drug,Orderr WHERE Drug.DrID=Orderr.DrID group by drug.drid order by sum(orderr.price/drug.price) desc")
+        res = mycursor.fetchall()
+        if len(res) == 0:
+            print("No results.")
+        else:
+
+            i = 3
+            for d in res:
+                print("DrID:%s Drug:%s Symptoms%s Sickness%s Quantity ordered:%d" % (d[0],d[1],d[2],d[3], int(d[4])))
+                i -= 1
+                if i < 1:
+                    break
+
+    if ch==4:
+        print("Input symptoms:")
+        symp = input()
+        print("Input Sickness")
+        sickness = input()
+        mycursor.execute(
+            "SELECT Drug.drID,Drug.drname,sickness,symptoms,avg(Drugreviews.rating),Drug.price from Drug,Orderr,DrugReviews where DrugReviews.OID = Orderr.OID AND Drug.DrID=Orderr.DrID   AND ( Drug.symptoms LIKE '%" + symp + "%' OR Drug.sickness LIKE '%" + sickness + "%') group by Drug.drid")
+        res = mycursor.fetchall()
+        if len(res) == 0:
+            print("No results.")
+        else:
+            for d in res:
+                print("ID:%s Name:%s Sickness: %s symptoms: %s Rating:%5s Price:%s" % (
+                d[0], d[1], d[2], d[3], round(d[4], 2), d[5]))
+            dridpr = set()
+            for d in res:
+                dridpr.add(d[0])
+            mycursor.execute(
+                "SELECT Drug.drID,Drug.drname,sickness,symptoms,Drug.price from Drug where ( Drug.symptoms LIKE '%" + symp + "%' OR Drug.sickness LIKE '%" + sickness + "%')")
+            res = mycursor.fetchall()
+            for d in res:
+                if d[0] not in dridpr:
+                    print("ID:%s Name:%s Sickness: %s symptoms: %s Price:%s" % (d[0], d[1], d[2], d[3], d[4]))
+    if ch==5:
+        print("Input Drug ID:")
+        drugid = input()
+        if ch == 5:
+            mycursor.execute(
+                "SELECT Drug.DrID,DrName,Avg(DrugReviews.rating) FROM Drug,Orderr,DrugReviews WHERE Drug.DrID=Orderr.DrID AND Orderr.OID = DrugReviews.OID AND Drug.drid="+str(drugid)+ " group by drug.drid")
+            res = mycursor.fetchall()
+            if len(res) == 0:
+                print("No results.")
+            else:
+                for d in res:
+                    print("DrugID:%s Name:%s Rating:%5s" % (d[0],d[1], round(d[2], 2)))
+
+    if ch==6:
+        mycursor.execute("SELECT symptoms,sickness from orderr,drug where uid="+str(id)+" and drug.drid=orderr.drid group by drug.drid order by sum(orderr.price/drug.price) desc;")
+        res = mycursor.fetchall()
+        if len(res) == 0:
+            print("No results.")
+        else:
+            symp = res[0][0]
+            sickness = res[0][1]
+            mycursor.execute(
+                "SELECT Drug.drID,Drug.drname,sickness,symptoms,avg(Drugreviews.rating),Drug.price from Drug,Orderr,DrugReviews where DrugReviews.OID = Orderr.OID AND Drug.DrID=Orderr.DrID   AND ( Drug.symptoms LIKE '%" + symp + "%' OR Drug.sickness LIKE '%" + sickness + "%') group by Drug.drid")
+            res = mycursor.fetchall()
+
+            for d in res:
+                print("ID:%s Name:%s Sickness: %s symptoms: %s Rating:%5s Price:%s" % (d[0], d[1],d[2],d[3], round(d[4], 2), d[5]))
+            dridpr=set()
+            for d in res:
+                dridpr.add(d[0])
+            mycursor.execute(
+                "SELECT Drug.drID,Drug.drname,sickness,symptoms,Drug.price from Drug where ( Drug.symptoms LIKE '%" + symp + "%' OR Drug.sickness LIKE '%" + sickness + "%')")
+            res = mycursor.fetchall()
+            for d in res:
+                if d[0] not in dridpr:
+                    print("ID:%s Name:%s Sickness: %s symptoms: %s Price:%s" % (d[0], d[1],d[2],d[3],  d[4]))
+
+    if ch==0:
+        MainScreen()
+        return
+    print("\n\n")
+    retquery(id)
 MainScreen()
