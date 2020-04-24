@@ -125,9 +125,9 @@ def usquery(id):
     print("0:MainScreen")
     ch=int(input())
     if ch==1:
-        mycursor.execute("Select city from userr where UID="+str(id))
+        mycursor.execute("Select city from Userr where UID="+str(id))
         city=mycursor.fetchall()[0][0]
-        mycursor.execute("SELECT Doctor.DID, Doctor.dname, doctor.Phone, Qualifications, specialization, AVG(DoctorReviews.Rating),Doctor.StreetAdress FROM Doctor,DoctorReviews,Appointment,OpenSlots WHERE Doctor.DID=Openslots.DID and OpenSlots.SID=Appointment.SID and Appointment.AID=DoctorReviews.AID AND Doctor.city=\""+city+"\" group by Doctor.did")
+        mycursor.execute("SELECT Doctor.DID, Doctor.dname, Doctor.Phone, Qualifications, specialization, AVG(DoctorReviews.Rating),Doctor.StreetAdress FROM Doctor,DoctorReviews,Appointment,OpenSlots WHERE Doctor.DID=OpenSlots.DID and OpenSlots.SID=Appointment.SID and Appointment.AID=DoctorReviews.AID AND Doctor.city=\""+city+"\" group by Doctor.did")
         res=mycursor.fetchall()
         if len(res)==0:
             print("No results.")
@@ -137,7 +137,7 @@ def usquery(id):
     if ch==2:
         print("Input Drug Name:")
         drug=input()
-        mycursor.execute("SELECT Drug.DrID,Drug.Drname, AVG(DrugReviews.rating) FROM Drug,DrugReviews,Orderr WHERE DrugReviews.OID=Orderr.OID AND Orderr.DrID=Drug.DrID AND Drug.Drname=\""+drug+"\" group by drug.drid")
+        mycursor.execute("SELECT Drug.DrID,Drug.Drname, AVG(DrugReviews.rating) FROM Drug,DrugReviews,Orderr WHERE DrugReviews.OID=Orderr.OID AND Orderr.DrID=Drug.DrID AND Drug.Drname=\""+drug+"\" group by Drug.DRID")
         res = mycursor.fetchall()
         if len(res) == 0:
             print("No results.")
@@ -149,7 +149,7 @@ def usquery(id):
         symp=input()
         print("Input Sickness")
         sickness=input()
-        mycursor.execute("SELECT Drug.drID,Drug.drname,sickness,symptoms,avg(Drugreviews.rating),Drug.price from Drug,Orderr,DrugReviews where DrugReviews.OID = Orderr.OID AND Drug.DrID=Orderr.DrID   AND ( Drug.symptoms LIKE '%"+symp+"%' OR Drug.sickness LIKE '%"+sickness+"%') group by Drug.drid")
+        mycursor.execute("SELECT Drug.drID,Drug.drname,sickness,symptoms,avg(DrugReviews.Rating),Drug.price from Drug,Orderr,DrugReviews where DrugReviews.OID = Orderr.OID AND Drug.DrID=Orderr.DrID   AND ( Drug.symptoms LIKE '%"+symp+"%' OR Drug.sickness LIKE '%"+sickness+"%') group by Drug.drid")
         res = mycursor.fetchall()
         if len(res) == 0:
             print("No results.")
@@ -193,7 +193,7 @@ def usquery(id):
         MainScreen()
         return
     if ch==7:
-        mycursor.execute("SELECT symptoms,sickness from orderr,drug where uid="+str(id)+" and drug.drid=orderr.drid group by drug.drid order by sum(orderr.price/drug.price) desc;")
+        mycursor.execute("SELECT symptoms,sickness from Orderr,Drug where uid="+str(id)+" and Drug.drid=Orderr.drid group by Drug.drid order by sum(Orderr.price/Drug.price) desc;")
         res = mycursor.fetchall()
         if len(res) == 0:
             print("No results.")
@@ -201,7 +201,7 @@ def usquery(id):
             symp = res[0][0]
             sickness = res[0][1]
             mycursor.execute(
-                "SELECT Drug.drID,Drug.drname,sickness,symptoms,avg(Drugreviews.rating),Drug.price from Drug,Orderr,DrugReviews where DrugReviews.OID = Orderr.OID AND Drug.DrID=Orderr.DrID   AND ( Drug.symptoms LIKE '%" + symp + "%' OR Drug.sickness LIKE '%" + sickness + "%') group by Drug.drid")
+                "SELECT Drug.drID,Drug.drname,sickness,symptoms,avg(DrugReviews.rating),Drug.price from Drug,Orderr,DrugReviews where DrugReviews.OID = Orderr.OID AND Drug.DrID=Orderr.DrID   AND ( Drug.symptoms LIKE '%" + symp + "%' OR Drug.sickness LIKE '%" + sickness + "%') group by Drug.drid")
             res = mycursor.fetchall()
 
             for d in res:
