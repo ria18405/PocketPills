@@ -2,6 +2,7 @@ import csv
 import hashlib
 import subprocess
 import matplotlib.pyplot as plt
+import numpy as np
 # plt.ion()
 import math
 import mysql.connector as mc
@@ -153,6 +154,7 @@ def usquery(id):
     print("5:Price of a Drug:")
     print("6:Chat with a Doctor(BONUS):")
     print("7:Alternative drugs based on order history (BONUS)")
+    print("8:Orders vs Date BAR-CHART(BONUS)")
     print("0:MainScreen")
     ch=int(input())
     if ch==1:
@@ -221,8 +223,7 @@ def usquery(id):
         print("Input your <user ID + 1000> as user no.")
         print("Start every message with <Doctor ID> to send a message to the Doctor")
         subprocess.call("./user")
-        MainScreen()
-        return
+
     if ch==7:
         mycursor.execute("SELECT symptoms,sickness from Orderr,Drug where uid="+str(id)+" and Drug.drid=Orderr.drid group by Drug.drid order by sum(Orderr.price/Drug.price) desc;")
         res = mycursor.fetchall()
@@ -246,6 +247,25 @@ def usquery(id):
             for d in res:
                 if d[0] not in dridpr:
                     print("ID:%s Name:%s Sickness: %s symptoms: %s Price:%s" % (d[0], d[1],d[2],d[3],  d[4]))
+    if ch==8:
+        mycursor.execute("select odate,count(*) from orderr where uid="+str(id)+" group by odate order by odate asc")
+        res=mycursor.fetchall()
+
+        objects = ()
+        for d in res:
+            objects+=(d[0],)
+        y_pos = np.arange(len(objects))
+        counts = []
+        for d in res:
+            counts.append(d[1])
+
+
+        plt.bar(y_pos, counts, align='center', alpha=0.5)
+        plt.xticks(y_pos, objects)
+        plt.ylabel('No. of orders')
+        plt.title('Orders on some date')
+        plt.show(block=False)
+
 
     if ch==0:
         MainScreen()
@@ -263,6 +283,8 @@ def docquery(id):
     print("5:Reviews for appointments:")
     print("6:Chat with a patient(BONUS)")
     print("7:Alternative drugs to prescribe based on history(BONUS)")
+    print("8:Open-Slots vs Date BAR-CHART (BONUS)")
+    print("9:Appointments vs Date BAR-CHART (BONUS)")
     print("0:MainScreen")
     ch=int(input())
     if ch==1:
@@ -331,8 +353,7 @@ def docquery(id):
         print("Input your <Doctor ID> as user no.")
         print("Start every message with <user ID + 1000> to send a message to the Doctor")
         subprocess.call("./user")
-        MainScreen()
-        return
+
     if ch==7:
         mycursor.execute(
             "SELECT symptoms,sickness FROM Drug,Prescription WHERE Drug.drID=Prescription.drid AND Prescription.DID=" + str(id) + " group by Drug.drid order by count(*);")
@@ -358,12 +379,45 @@ def docquery(id):
             for d in res:
                 if d[0] not in dridpr:
                     print("ID:%s Name:%s Sickness: %s symptoms: %s Price:%s" % (d[0], d[1], d[2], d[3], d[4]))
+    if ch==8:
+        mycursor.execute("select sdate,count(*) from openslots where did="+str(id)+" group by sdate order by sdate asc")
+        res=mycursor.fetchall()
+
+        objects = ()
+        for d in res:
+            objects+=(d[0],)
+        y_pos = np.arange(len(objects))
+        counts = []
+        for d in res:
+            counts.append(d[1])
+        plt.bar(y_pos, counts, align='center', alpha=0.5)
+        plt.xticks(y_pos, objects)
+        plt.ylabel('No. of Open Slots')
+        plt.title('Open Slots on some date')
+        plt.show(block=False)
+
+    if ch==9:
+        mycursor.execute("select sdate,count(*) from openslots,appointment where openslots.sid=appointment.sid and did="+str(id)+" group by sdate order by sdate asc")
+        res=mycursor.fetchall()
+
+        objects = ()
+        for d in res:
+            objects+=(d[0],)
+        y_pos = np.arange(len(objects))
+        counts = []
+        for d in res:
+            counts.append(d[1])
+        plt.bar(y_pos, counts, align='center', alpha=0.5)
+        plt.xticks(y_pos, objects)
+        plt.ylabel('No. of Appointments')
+        plt.title('Appointments on some date')
+        plt.show(block=False)
+
     if ch==0:
         MainScreen()
         return
     print("\n\n")
     docquery(id)
-
 def compquery(id):
     mycursor = mydb.cursor()
     print("Select Query:")
@@ -373,8 +427,9 @@ def compquery(id):
     print("4:Alternative drugs by other companies and their prices:")
     print("5:Reviews of drugs sold by the company:")
     print("6:Most frequent sickness and symptoms(BONUS)")
-    print("7:Company Market-Share PIE-CHART")
-    print("8:Drug Market-Share PIE-CHART")
+    print("7:Company Market-Share PIE-CHART(BONUS)")
+    print("8:Drug Market-Share PIE-CHART(BONUS)")
+    print("9:Drug orders vs date BAR-CHART(BONUS) ")
     print("0:MainScreen")
     ch = int(input())
     if ch == 1:
@@ -498,8 +553,7 @@ def compquery(id):
         plt.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
 
         plt.show(block=False)
-        # plt.close()
-        compquery(id)
+
     if ch==8:
         mycursor.execute(
             "SELECT drug.DRID FROM Orderr,Drug WHERE Drug.DrID=Orderr.DrID AND CID=" + str(
@@ -547,7 +601,27 @@ def compquery(id):
         plt.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
 
         plt.show(block=False)
-        compquery(id)
+
+    if ch==9:
+        print("Enter Drug-ID")
+        drid=input()
+        mycursor.execute("select odate,sum(orderr.price/drug.price) from orderr,drug where drug.drid=orderr.drid and drug.drid="+str(drid)+" group by odate order by odate asc")
+        res=mycursor.fetchall()
+
+        objects = ()
+        for d in res:
+            objects+=(d[0],)
+        y_pos = np.arange(len(objects))
+        counts = []
+        for d in res:
+            counts.append(int(d[1]))
+
+
+        plt.bar(y_pos, counts, align='center', alpha=0.5)
+        plt.xticks(y_pos, objects)
+        plt.ylabel('Quantity ordered')
+        plt.title('Quantity ordered on some date')
+        plt.show(block=False)
     if ch == 0:
         MainScreen()
         return
@@ -565,6 +639,7 @@ def labquery(id):
     print("6:Most popular tests worldwide and most popular tests in lab's city(BONUS):")
     print("7:Lab Market-Share PIE-CHART (BONUS)")
     print("8:Test Market-Share PIE-CHART (BONUS)")
+    print("9:Tests vs date BAR-CHART (BONUS)")
     print("0:MainScreen")
     ch = int(input())
     if ch == 1:
@@ -684,8 +759,7 @@ def labquery(id):
         plt.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
 
         plt.show(block=False)
-        # plt.close()
-        labquery(id)
+
     if ch==8:
         mycursor.execute(
             "SELECT Tests,count(*) FROM Test where labid="+str(id)+"  group by Tests order by count(*) desc")
@@ -732,7 +806,26 @@ def labquery(id):
         plt.axis('equal') # Equal aspect ratio ensures that pie is drawn as a circle.
 
         plt.show(block=False)
-        labquery(id)
+
+    if ch==9:
+        mycursor.execute("select tdate,count(*) from test where labid="+str(id)+" group by tdate order by tdate asc")
+        res=mycursor.fetchall()
+
+        objects = ()
+        for d in res:
+            objects+=(d[0],)
+        y_pos = np.arange(len(objects))
+        counts = []
+        for d in res:
+            counts.append(d[1])
+
+
+        plt.bar(y_pos, counts, align='center', alpha=0.5)
+        plt.xticks(y_pos, objects)
+        plt.ylabel('No. of tests')
+        plt.title('Tests on some date')
+        plt.show(block=False)
+
     if ch == 0:
         MainScreen()
         return
@@ -750,6 +843,7 @@ def daquery(id):
     print("6:Most popular delivery areas(BONUS):")
     print("7:DeliveryAgency Market-Share PIE-CHART (BONUS)")
     print("8:DeliveryArea Market-Share PIE-CHART (BONUS)")
+    print("9:Deliveries vs date BAR-CHART (BONUS)")
     print("0:MainScreen")
     ch = int(input())
     if ch == 1:
@@ -861,8 +955,7 @@ def daquery(id):
         plt.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
 
         plt.show(block=False)
-        # plt.close()
-        daquery(id)
+
     if ch==8:
         mycursor.execute(
             "SELECT postalcode,sum(orderr.price) FROM delivery,orderr where orderr.oid=delivery.oid and daid="+str(id)+"  group by postalcode order by sum(price) desc")
@@ -909,12 +1002,32 @@ def daquery(id):
         plt.axis('equal') # Equal aspect ratio ensures that pie is drawn as a circle.
 
         plt.show(block=False)
-        labquery(id)
+
+    if ch==9:
+        mycursor.execute("select eta,count(*) from delivery where daid="+str(id)+" group by eta order by eta asc")
+        res=mycursor.fetchall()
+
+        objects = ()
+        for d in res:
+            objects+=(d[0],)
+        y_pos = np.arange(len(objects))
+        counts = []
+        for d in res:
+            counts.append(d[1])
+
+
+        plt.bar(y_pos, counts, align='center', alpha=0.5)
+        plt.xticks(y_pos, objects)
+        plt.ylabel('No. of deliveries')
+        plt.title('Deliveries on some date')
+        plt.show(block=False)
+
     if ch == 0:
         MainScreen()
         return
     print("\n\n")
     daquery(id)
+
 def retquery(id):
     mycursor = mydb.cursor()
     print("Select Query:")
@@ -924,6 +1037,7 @@ def retquery(id):
     print("4:Better alternatives to a drug :")
     print("5:Reviews of drugs they are selling have satisfactory results:")
     print("6:Alternative drugs based on order history (BONUS)")
+    print("7:Orders vs Date BAR-CHART(BONUS)")
     print("0:MainScreen")
     ch=int(input())
     if ch==1:
@@ -1021,10 +1135,29 @@ def retquery(id):
                 if d[0] not in dridpr:
                     print("ID:%s Name:%s Sickness: %s symptoms: %s Price:%s" % (d[0], d[1],d[2],d[3],  d[4]))
 
+    if ch==7:
+        mycursor.execute("select odate,count(*) from orderr where uid="+str(id)+" group by odate order by odate asc")
+        res=mycursor.fetchall()
+
+        objects = ()
+        for d in res:
+            objects+=(d[0],)
+        y_pos = np.arange(len(objects))
+        counts = []
+        for d in res:
+            counts.append(d[1])
+
+
+        plt.bar(y_pos, counts, align='center', alpha=0.5)
+        plt.xticks(y_pos, objects)
+        plt.ylabel('No. of orders')
+        plt.title('Orders on some date')
+        plt.show(block=False)
+
     if ch==0:
         MainScreen()
         return
     print("\n\n")
     retquery(id)
-# daquery(75)
+
 MainScreen()
