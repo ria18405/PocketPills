@@ -1,6 +1,9 @@
 import csv
 import hashlib
 import subprocess
+import matplotlib.pyplot as plt
+import numpy as np
+# plt.ion()
 import math
 import mysql.connector as mc
 mydb=mc.connect(host="localhost",
@@ -151,6 +154,7 @@ def usquery(id):
     print("5:Price of a Drug:")
     print("6:Chat with a Doctor(BONUS):")
     print("7:Alternative drugs based on order history (BONUS)")
+    print("8:Orders vs Date BAR-CHART(BONUS)")
     print("0:MainScreen")
     ch=int(input())
     if ch==1:
@@ -219,8 +223,7 @@ def usquery(id):
         print("Input your <user ID + 1000> as user no.")
         print("Start every message with <Doctor ID> to send a message to the Doctor")
         subprocess.call("./user")
-        MainScreen()
-        return
+
     if ch==7:
         mycursor.execute("SELECT symptoms,sickness from Orderr,Drug where uid="+str(id)+" and Drug.drid=Orderr.drid group by Drug.drid order by sum(Orderr.price/Drug.price) desc;")
         res = mycursor.fetchall()
@@ -244,6 +247,25 @@ def usquery(id):
             for d in res:
                 if d[0] not in dridpr:
                     print("ID:%s Name:%s Sickness: %s symptoms: %s Price:%s" % (d[0], d[1],d[2],d[3],  d[4]))
+    if ch==8:
+        mycursor.execute("select odate,count(*) from orderr where uid="+str(id)+" group by odate order by odate asc")
+        res=mycursor.fetchall()
+
+        objects = ()
+        for d in res:
+            objects+=(d[0],)
+        y_pos = np.arange(len(objects))
+        counts = []
+        for d in res:
+            counts.append(d[1])
+
+
+        plt.bar(y_pos, counts, align='center', alpha=0.5)
+        plt.xticks(y_pos, objects)
+        plt.ylabel('No. of orders')
+        plt.title('Orders on some date')
+        plt.show(block=False)
+
 
     if ch==0:
         MainScreen()
@@ -261,6 +283,8 @@ def docquery(id):
     print("5:Reviews for appointments:")
     print("6:Chat with a patient(BONUS)")
     print("7:Alternative drugs to prescribe based on history(BONUS)")
+    print("8:Open-Slots vs Date BAR-CHART (BONUS)")
+    print("9:Appointments vs Date BAR-CHART (BONUS)")
     print("0:MainScreen")
     ch=int(input())
     if ch==1:
@@ -329,8 +353,7 @@ def docquery(id):
         print("Input your <Doctor ID> as user no.")
         print("Start every message with <user ID + 1000> to send a message to the Doctor")
         subprocess.call("./user")
-        MainScreen()
-        return
+
     if ch==7:
         mycursor.execute(
             "SELECT symptoms,sickness FROM Drug,Prescription WHERE Drug.drID=Prescription.drid AND Prescription.DID=" + str(id) + " group by Drug.drid order by count(*);")
@@ -356,12 +379,45 @@ def docquery(id):
             for d in res:
                 if d[0] not in dridpr:
                     print("ID:%s Name:%s Sickness: %s symptoms: %s Price:%s" % (d[0], d[1], d[2], d[3], d[4]))
+    if ch==8:
+        mycursor.execute("select sdate,count(*) from openslots where did="+str(id)+" group by sdate order by sdate asc")
+        res=mycursor.fetchall()
+
+        objects = ()
+        for d in res:
+            objects+=(d[0],)
+        y_pos = np.arange(len(objects))
+        counts = []
+        for d in res:
+            counts.append(d[1])
+        plt.bar(y_pos, counts, align='center', alpha=0.5)
+        plt.xticks(y_pos, objects)
+        plt.ylabel('No. of Open Slots')
+        plt.title('Open Slots on some date')
+        plt.show(block=False)
+
+    if ch==9:
+        mycursor.execute("select sdate,count(*) from openslots,appointment where openslots.sid=appointment.sid and did="+str(id)+" group by sdate order by sdate asc")
+        res=mycursor.fetchall()
+
+        objects = ()
+        for d in res:
+            objects+=(d[0],)
+        y_pos = np.arange(len(objects))
+        counts = []
+        for d in res:
+            counts.append(d[1])
+        plt.bar(y_pos, counts, align='center', alpha=0.5)
+        plt.xticks(y_pos, objects)
+        plt.ylabel('No. of Appointments')
+        plt.title('Appointments on some date')
+        plt.show(block=False)
+
     if ch==0:
         MainScreen()
         return
     print("\n\n")
     docquery(id)
-
 def compquery(id):
     mycursor = mydb.cursor()
     print("Select Query:")
@@ -371,6 +427,9 @@ def compquery(id):
     print("4:Alternative drugs by other companies and their prices:")
     print("5:Reviews of drugs sold by the company:")
     print("6:Most frequent sickness and symptoms(BONUS)")
+    print("7:Company Market-Share PIE-CHART(BONUS)")
+    print("8:Drug Market-Share PIE-CHART(BONUS)")
+    print("9:Drug orders vs date BAR-CHART(BONUS) ")
     print("0:MainScreen")
     ch = int(input())
     if ch == 1:
@@ -459,6 +518,110 @@ def compquery(id):
                 i -= 1
                 if i < 1:
                     break
+    if ch==7:
+        mycursor.execute(
+            "SELECT CID, sum(orderr.price/drug.price) FROM Orderr,Drug WHERE Drug.DrID=Orderr.DrID GROUP BY drug.cid order by sum(orderr.price/drug.price) desc")
+        res = mycursor.fetchall()
+        su=0
+        loc=-1
+        i=0
+        for d in res:
+            if d[0]==id:
+                loc=i
+            i+=1
+            su+=d[1]
+        if loc>5:
+            labels = res[loc][0],res[0][0],res[1][0],res[2][0],res[3][0],'others'
+            sizes = [res[loc][1], res[0][1], res[1][1], res[2][1],res[3][1],su-res[loc][1]-res[0][1]-res[1][1]-res[2][1]-res[3][1]]
+            colors = ['gold', 'yellowgreen', 'lightcoral', 'lightskyblue','red','purple']
+            explode = (0.1, 0, 0, 0,0,0)  # explode 1st slice
+        else:
+            labels = res[0][0], res[1][0], res[2][0], res[3][0],res[4][0], 'others'
+            sizes =  [res[0][1], res[1][1], res[2][1], res[3][1],res[4][1],su - res[0][1] - res[1][1] - res[2][1] - res[3][1]-res[4][1]]
+            colors = ['gold','yellowgreen', 'lightcoral', 'lightskyblue', 'red', 'purple']
+            explode=()
+            for i in range(6):
+                if i==loc:
+                    explode=explode+(0.1,)
+                else:
+                    explode=explode+(0,)
+
+        # Plot
+        plt.pie(sizes, explode=explode, labels=labels, colors=colors,
+                autopct='%1.1f%%', shadow=True, startangle=140)
+
+        plt.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+
+        plt.show(block=False)
+
+    if ch==8:
+        mycursor.execute(
+            "SELECT drug.DRID FROM Orderr,Drug WHERE Drug.DrID=Orderr.DrID AND CID=" + str(
+                id)+" group by drug.drid order by sum(orderr.price/drug.price) desc")
+        res = mycursor.fetchall()
+        if len(res)==0:
+            dr=-1
+        else:
+            dr=res[0][0]
+        # print(dr)
+        mycursor.execute(
+            "SELECT Drug.DrID, sum(orderr.price/drug.price) FROM Orderr,Drug WHERE Drug.DrID=Orderr.DrID GROUP BY drug.drid order by sum(orderr.price/drug.price) desc")
+        res = mycursor.fetchall()
+        # print(res)
+        su = 0
+        loc = -1
+        i = 0
+        for d in res:
+            if d[0] == dr:
+                loc = i
+            i += 1
+            su += d[1]
+        if loc > 5:
+            labels = res[loc][0], res[0][0], res[1][0], res[2][0], res[3][0], 'others'
+            sizes = [res[loc][1], res[0][1], res[1][1], res[2][1], res[3][1],
+                     su - res[loc][1] - res[0][1] - res[1][1] - res[2][1] - res[3][1]]
+            colors = ['gold', 'yellowgreen', 'lightcoral', 'lightskyblue', 'red', 'purple']
+            explode = (0.1, 0, 0, 0, 0, 0)  # explode 1st slice
+        else:
+            labels = res[0][0], res[1][0], res[2][0], res[3][0], res[4][0], 'others'
+            sizes = [res[0][1], res[1][1], res[2][1], res[3][1], res[4][1],
+                     su - res[0][1] - res[1][1] - res[2][1] - res[3][1] - res[4][1]]
+            colors = ['gold', 'yellowgreen', 'lightcoral', 'lightskyblue', 'red', 'purple']
+            explode = ()
+            for i in range(6):
+                if i == loc:
+                    explode = explode + (0.1,)
+                else:
+                    explode = explode + (0,)
+
+        # Plot
+        plt.pie(sizes, explode=explode, labels=labels, colors=colors,
+                autopct='%1.1f%%', shadow=True, startangle=140)
+
+        plt.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+
+        plt.show(block=False)
+
+    if ch==9:
+        print("Enter Drug-ID")
+        drid=input()
+        mycursor.execute("select odate,sum(orderr.price/drug.price) from orderr,drug where drug.drid=orderr.drid and drug.drid="+str(drid)+" group by odate order by odate asc")
+        res=mycursor.fetchall()
+
+        objects = ()
+        for d in res:
+            objects+=(d[0],)
+        y_pos = np.arange(len(objects))
+        counts = []
+        for d in res:
+            counts.append(int(d[1]))
+
+
+        plt.bar(y_pos, counts, align='center', alpha=0.5)
+        plt.xticks(y_pos, objects)
+        plt.ylabel('Quantity ordered')
+        plt.title('Quantity ordered on some date')
+        plt.show(block=False)
     if ch == 0:
         MainScreen()
         return
@@ -474,6 +637,9 @@ def labquery(id):
     print("4:Diagnostic reports generated by the lab:")
     print("5:Reviews of Tests:")
     print("6:Most popular tests worldwide and most popular tests in lab's city(BONUS):")
+    print("7:Lab Market-Share PIE-CHART (BONUS)")
+    print("8:Test Market-Share PIE-CHART (BONUS)")
+    print("9:Tests vs date BAR-CHART (BONUS)")
     print("0:MainScreen")
     ch = int(input())
     if ch == 1:
@@ -555,6 +721,110 @@ def labquery(id):
                 i -= 1
                 if i < 1:
                     break
+    if ch==7:
+        mycursor.execute(
+            "SELECT LabID, count(*) FROM Test GROUP BY labid order by count(*) desc")
+        res = mycursor.fetchall()
+        su=0
+        loc=-1
+        i=0
+
+        for d in res:
+            if d[0]==id:
+                loc=i
+            i+=1
+            su+=d[1]
+        # print(loc)
+        if loc>5:
+            labels = res[loc][0],res[0][0],res[1][0],res[2][0],res[3][0],'others'
+            sizes = [res[loc][1], res[0][1], res[1][1], res[2][1],res[3][1],su-res[loc][1]-res[0][1]-res[1][1]-res[2][1]-res[3][1]]
+            colors = ['gold', 'yellowgreen', 'lightcoral', 'lightskyblue','red','purple']
+            explode = (0.1, 0, 0, 0,0,0)  # explode 1st slice
+        else:
+            labels = res[0][0], res[1][0], res[2][0], res[3][0],res[4][0], 'others'
+            sizes =  [res[0][1], res[1][1], res[2][1], res[3][1],res[4][1],su - res[0][1] - res[1][1] - res[2][1] - res[3][1]-res[4][1]]
+            colors = ['gold','yellowgreen', 'lightcoral', 'lightskyblue', 'red', 'purple']
+            explode=()
+            for i in range(6):
+                if i==loc:
+                    explode=explode+(0.1,)
+                else:
+                    explode=explode+(0,)
+            # print(explode)
+
+        # Plot
+        plt.pie(sizes, explode=explode, labels=labels, colors=colors,
+                autopct='%1.1f%%', shadow=True, startangle=140)
+
+        plt.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+
+        plt.show(block=False)
+
+    if ch==8:
+        mycursor.execute(
+            "SELECT Tests,count(*) FROM Test where labid="+str(id)+"  group by Tests order by count(*) desc")
+        res = mycursor.fetchall()
+        if len(res)==0:
+            dr=-1
+        else:
+            dr=res[0][0]
+        # print(dr)
+        mycursor.execute("SELECT Tests,count(*) FROM Test  group by Tests order by count(*) desc")
+        res = mycursor.fetchall()
+        # print(res)
+        # print(res)
+        su = 0
+        loc = 0
+        i = 0
+        for d in res:
+            if d[0] == dr:
+                loc = i
+            i += 1
+            su += d[1]
+        if loc > 5:
+            labels = res[loc][0], res[0][0], res[1][0], res[2][0], res[3][0], 'others'
+            sizes = [res[loc][1], res[0][1], res[1][1], res[2][1], res[3][1],
+                     su - res[loc][1] - res[0][1] - res[1][1] - res[2][1] - res[3][1]]
+            colors = ['gold', 'yellowgreen', 'lightcoral', 'lightskyblue', 'red', 'purple']
+            explode = (0.1, 0, 0, 0, 0, 0)  # explode 1st slice
+        else:
+            labels = res[0][0], res[1][0], res[2][0], res[3][0], res[4][0], 'others'
+            sizes = [res[0][1], res[1][1], res[2][1], res[3][1], res[4][1],
+                     su - res[0][1] - res[1][1] - res[2][1] - res[3][1] - res[4][1]]
+            colors = ['gold', 'yellowgreen', 'lightcoral', 'lightskyblue', 'red', 'purple']
+            explode = ()
+            for i in range(6):
+                if i == loc:
+                    explode = explode + (0.1,)
+                else:
+                    explode = explode + (0,)
+
+        # Plot
+        plt.pie(sizes, explode=explode, labels=labels, colors=colors,
+                autopct='%1.1f%%', shadow=True, startangle=140)
+
+        plt.axis('equal') # Equal aspect ratio ensures that pie is drawn as a circle.
+
+        plt.show(block=False)
+
+    if ch==9:
+        mycursor.execute("select tdate,count(*) from test where labid="+str(id)+" group by tdate order by tdate asc")
+        res=mycursor.fetchall()
+
+        objects = ()
+        for d in res:
+            objects+=(d[0],)
+        y_pos = np.arange(len(objects))
+        counts = []
+        for d in res:
+            counts.append(d[1])
+
+
+        plt.bar(y_pos, counts, align='center', alpha=0.5)
+        plt.xticks(y_pos, objects)
+        plt.ylabel('No. of tests')
+        plt.title('Tests on some date')
+        plt.show(block=False)
 
     if ch == 0:
         MainScreen()
@@ -571,6 +841,9 @@ def daquery(id):
     print("4:Delivery Details:")
     print("5:Reviews of Deliveries:")
     print("6:Most popular delivery areas(BONUS):")
+    print("7:DeliveryAgency Market-Share PIE-CHART (BONUS)")
+    print("8:DeliveryArea Market-Share PIE-CHART (BONUS)")
+    print("9:Deliveries vs date BAR-CHART (BONUS)")
     print("0:MainScreen")
     ch = int(input())
     if ch == 1:
@@ -644,6 +917,111 @@ def daquery(id):
                 i-=1
                 if i<1:
                     break
+    if ch==7:
+        mycursor.execute(
+            "SELECT delivery.daid,sum(orderr.price) FROM delivery,orderr where orderr.oid=delivery.oid GROUP BY daid order by count(*) desc")
+        res = mycursor.fetchall()
+        su=0
+        loc=-1
+        i=0
+
+        for d in res:
+            if d[0]==id:
+                loc=i
+            i+=1
+            su+=d[1]
+        # print(loc)
+        if loc>5:
+            labels = res[loc][0],res[0][0],res[1][0],res[2][0],res[3][0],'others'
+            sizes = [res[loc][1], res[0][1], res[1][1], res[2][1],res[3][1],su-res[loc][1]-res[0][1]-res[1][1]-res[2][1]-res[3][1]]
+            colors = ['gold', 'yellowgreen', 'lightcoral', 'lightskyblue','red','purple']
+            explode = (0.1, 0, 0, 0,0,0)  # explode 1st slice
+        else:
+            labels = res[0][0], res[1][0], res[2][0], res[3][0],res[4][0], 'others'
+            sizes =  [res[0][1], res[1][1], res[2][1], res[3][1],res[4][1],su - res[0][1] - res[1][1] - res[2][1] - res[3][1]-res[4][1]]
+            colors = ['gold','yellowgreen', 'lightcoral', 'lightskyblue', 'red', 'purple']
+            explode=()
+            for i in range(6):
+                if i==loc:
+                    explode=explode+(0.1,)
+                else:
+                    explode=explode+(0,)
+            # print(explode)
+
+        # Plot
+        plt.pie(sizes, explode=explode, labels=labels, colors=colors,
+                autopct='%1.1f%%', shadow=True, startangle=140)
+
+        plt.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+
+        plt.show(block=False)
+
+    if ch==8:
+        mycursor.execute(
+            "SELECT postalcode,sum(orderr.price) FROM delivery,orderr where orderr.oid=delivery.oid and daid="+str(id)+"  group by postalcode order by sum(price) desc")
+        res = mycursor.fetchall()
+        if len(res)==0:
+            dr=-1
+        else:
+            dr=res[0][0]
+        # print(dr)
+        mycursor.execute("SELECT postalcode,sum(orderr.price) FROM delivery,orderr where orderr.oid=delivery.oid group by postalcode order by sum(price) desc")
+        res = mycursor.fetchall()
+        # print(res)
+        # print(res)
+        su = 0
+        loc = 0
+        i = 0
+        for d in res:
+            if d[0] == dr:
+                loc = i
+            i += 1
+            su += d[1]
+        if loc > 5:
+            labels = res[loc][0], res[0][0], res[1][0], res[2][0], res[3][0], 'others'
+            sizes = [res[loc][1], res[0][1], res[1][1], res[2][1], res[3][1],
+                     su - res[loc][1] - res[0][1] - res[1][1] - res[2][1] - res[3][1]]
+            colors = ['gold', 'yellowgreen', 'lightcoral', 'lightskyblue', 'red', 'purple']
+            explode = (0.1, 0, 0, 0, 0, 0)  # explode 1st slice
+        else:
+            labels = res[0][0], res[1][0], res[2][0], res[3][0], res[4][0], 'others'
+            sizes = [res[0][1], res[1][1], res[2][1], res[3][1], res[4][1],
+                     su - res[0][1] - res[1][1] - res[2][1] - res[3][1] - res[4][1]]
+            colors = ['gold', 'yellowgreen', 'lightcoral', 'lightskyblue', 'red', 'purple']
+            explode = ()
+            for i in range(6):
+                if i == loc:
+                    explode = explode + (0.1,)
+                else:
+                    explode = explode + (0,)
+
+        # Plot
+        plt.pie(sizes, explode=explode, labels=labels, colors=colors,
+                autopct='%1.1f%%', shadow=True, startangle=140)
+
+        plt.axis('equal') # Equal aspect ratio ensures that pie is drawn as a circle.
+
+        plt.show(block=False)
+
+    if ch==9:
+        mycursor.execute("select eta,count(*) from delivery where daid="+str(id)+" group by eta order by eta asc")
+        res=mycursor.fetchall()
+
+        objects = ()
+        for d in res:
+            objects+=(d[0],)
+        y_pos = np.arange(len(objects))
+        counts = []
+        for d in res:
+            counts.append(d[1])
+
+
+        plt.bar(y_pos, counts, align='center', alpha=0.5)
+        plt.xticks(y_pos, objects)
+        plt.ylabel('No. of deliveries')
+        plt.title('Deliveries on some date')
+        plt.show(block=False)
+
     if ch == 0:
         MainScreen()
         return
@@ -659,6 +1037,7 @@ def retquery(id):
     print("4:Better alternatives to a drug :")
     print("5:Reviews of drugs they are selling have satisfactory results:")
     print("6:Alternative drugs based on order history (BONUS)")
+    print("7:Orders vs Date BAR-CHART(BONUS)")
     print("0:MainScreen")
     ch=int(input())
     if ch==1:
@@ -756,9 +1135,29 @@ def retquery(id):
                 if d[0] not in dridpr:
                     print("ID:%s Name:%s Sickness: %s symptoms: %s Price:%s" % (d[0], d[1],d[2],d[3],  d[4]))
 
+    if ch==7:
+        mycursor.execute("select odate,count(*) from orderr where uid="+str(id)+" group by odate order by odate asc")
+        res=mycursor.fetchall()
+
+        objects = ()
+        for d in res:
+            objects+=(d[0],)
+        y_pos = np.arange(len(objects))
+        counts = []
+        for d in res:
+            counts.append(d[1])
+
+
+        plt.bar(y_pos, counts, align='center', alpha=0.5)
+        plt.xticks(y_pos, objects)
+        plt.ylabel('No. of orders')
+        plt.title('Orders on some date')
+        plt.show(block=False)
+
     if ch==0:
         MainScreen()
         return
     print("\n\n")
     retquery(id)
+
 MainScreen()
