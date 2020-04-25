@@ -145,6 +145,7 @@ def RetailerMenu():
     MainScreen()
 
 def usquery(id):
+    id = int(id)
     mycursor = mydb.cursor()
     print("Select Query:")
     print("1:Best doctors near me:")
@@ -274,6 +275,7 @@ def usquery(id):
     usquery(id)
 
 def docquery(id):
+    id = int(id)
     mycursor = mydb.cursor()
     print("Select Query:")
     print("1:Upcoming appointments:")
@@ -309,7 +311,7 @@ def docquery(id):
             print("No results.")
         else:
             for d in res:
-                print("Appointment ID:%s Time:%5s Date:%5s" % (d[0], d[1], d[2]))
+                print("Open Slots ID:%s Time:%5s Date:%5s" % (d[0], d[1], d[2]))
 
     if ch==3:
         print("Input symptoms:")
@@ -419,6 +421,7 @@ def docquery(id):
     print("\n\n")
     docquery(id)
 def compquery(id):
+    id = int(id)
     mycursor = mydb.cursor()
     print("Select Query:")
     print("1:Price of Drugs sold by the company:")
@@ -432,6 +435,7 @@ def compquery(id):
     print("9:Drug orders vs date BAR-CHART(BONUS) ")
     print("0:MainScreen")
     ch = int(input())
+
     if ch == 1:
 
         mycursor.execute("SELECT DrID,DrName,Price FROM Drug WHERE CID =" + str(id))
@@ -629,6 +633,7 @@ def compquery(id):
     compquery(id)
 
 def labquery(id):
+    id = int(id)
     mycursor = mydb.cursor()
     print("Select Query:")
     print("1:Tests performed or to be performed by the lab")
@@ -833,6 +838,7 @@ def labquery(id):
     labquery(id)
 
 def daquery(id):
+    id = int(id)
     mycursor = mydb.cursor()
     print("Select Query:")
     print("1:Upcoming deliveries:")
@@ -1029,6 +1035,7 @@ def daquery(id):
     daquery(id)
 
 def retquery(id):
+    id = int(id)
     mycursor = mydb.cursor()
     print("Select Query:")
     print("1:Are we getting better prices for medicines from the online store?:")
