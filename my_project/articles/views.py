@@ -3,7 +3,9 @@ from . import helper
 from .helper import *
 import mysql.connector as mc
 from .forms import QueryForm, QueryForm_2input
-
+mydb = mc.connect(host="localhost",
+                          user="root",
+                          passwd="xxxx", auth_plugin='mysql_native_password', database="Health")
 def queries(request):
 
     if(request.method=='POST'):
@@ -12,9 +14,7 @@ def queries(request):
 
         if(form.is_valid()):
             drug=form.cleaned_data['drug']
-        mydb = mc.connect(host="localhost",
-                          user="root",
-                          passwd="riagupta3496", auth_plugin='mysql_native_password', database="Health")
+
         mycursor = mydb.cursor()
 
         x=usquery_2(mycursor,drug)
@@ -34,9 +34,7 @@ def queries_4(request):
 
         if(form.is_valid()):
             drug=form.cleaned_data['drug']
-        mydb = mc.connect(host="localhost",
-                          user="root",
-                          passwd="riagupta3496", auth_plugin='mysql_native_password', database="Health")
+
         mycursor = mydb.cursor()
 
         x=usquery_4(mycursor,drug)
@@ -55,9 +53,7 @@ def queries_5(request):
 
         if(form.is_valid()):
             drug=form.cleaned_data['drug']
-        mydb = mc.connect(host="localhost",
-                          user="root",
-                          passwd="riagupta3496", auth_plugin='mysql_native_password', database="Health")
+
         mycursor = mydb.cursor()
 
         x=usquery_5(mycursor,drug)
@@ -79,9 +75,7 @@ def queries_3(request):
             symp=form.cleaned_data['symptoms']
             sickness=form.cleaned_data['sickness']
 
-        mydb = mc.connect(host="localhost",
-                          user="root",
-                          passwd="riagupta3496", auth_plugin='mysql_native_password', database="Health")
+
         mycursor = mydb.cursor()
 
         x=usquery_3(mycursor,symp,sickness)
@@ -96,9 +90,7 @@ def queries_1(request):
 
     if(request.method=='POST'):
 
-        mydb = mc.connect(host="localhost",
-                          user="root",
-                          passwd="riagupta3496", auth_plugin='mysql_native_password', database="Health")
+
         mycursor = mydb.cursor()
 
         x=usquery_1(mycursor,86)

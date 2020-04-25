@@ -248,7 +248,7 @@ def usquery(id):
                 if d[0] not in dridpr:
                     print("ID:%s Name:%s Sickness: %s symptoms: %s Price:%s" % (d[0], d[1],d[2],d[3],  d[4]))
     if ch==8:
-        mycursor.execute("select odate,count(*) from orderr where uid="+str(id)+" group by odate order by odate asc")
+        mycursor.execute("select odate,count(*) from Orderr where uid="+str(id)+" group by odate order by odate asc")
         res=mycursor.fetchall()
 
         objects = ()
