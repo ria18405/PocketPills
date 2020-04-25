@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SQL QUERIES</title>
+</head>
+<body>
+
+
+
+<p><h2>Price of a Drug</h2>
+<div class="wrap-input100 validate-input" data-validate = "Drug name">
+	<form method="post">
+	{% csrf_token %}
+	{{ form.as_p }}
+	<button class="login100-form-btn">
+	SEND
+	</button>
+		<h2>{{ x }}</h2>
+</form>
+</div>
+</p>
+
+<div>
+	<button>
+		<a href="/queries/1">
+		NEXT QUERY
+	</button></a>
+
+</div>
+
+
+</body>
+</html>

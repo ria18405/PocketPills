@@ -5,7 +5,7 @@ import math
 import mysql.connector as mc
 mydb=mc.connect(host="localhost",
   user="root",
-  passwd="iamtheannabelle",auth_plugin='mysql_native_password',database="Health")
+  passwd="xxxx",auth_plugin='mysql_native_password',database="Health")
 def MainScreen():
     print("Login as:")
     print("1.User\n2.Doctor\n3.Company\n4.Lab\n5.Delivery Agency\n6.Retailer\n0.Exit")
