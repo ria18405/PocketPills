@@ -52,13 +52,36 @@ POCKETPILLS is an online medical facility where our registered users will get th
 ![Image description](https://github.com/ria18405/PocketPills/blob/master/assets/img2.png)
 ![Image description](https://github.com/ria18405/PocketPills/blob/master/assets/img3.png)
 ![Image description](https://github.com/ria18405/PocketPills/blob/master/assets/img4.png)
+
+CHAT SYSTEM:
+
 ![Image description](https://github.com/ria18405/PocketPills/blob/master/assets/img5.png)
+
+
+Company and their Market-Share:
+
 ![Image description](https://github.com/ria18405/PocketPills/blob/master/assets/img6.png)
+
+Tests and their Market-Share:
+
 ![Image description](https://github.com/ria18405/PocketPills/blob/master/assets/img7.png)
+
+DeliveryAreas and their Market-Share:
+
 ![Image description](https://github.com/ria18405/PocketPills/blob/master/assets/img8.png)
+
+Bar-Chart for Drug ID=16
+
 ![Image description](https://github.com/ria18405/PocketPills/blob/master/assets/img9.png)
+
+Bar-Chart for Delivery Agency ID=25:
+
 ![Image description](https://github.com/ria18405/PocketPills/blob/master/assets/img10.png)
+
+Bar-Chart for Doctor ID=3
+
 ![Image description](https://github.com/ria18405/PocketPills/blob/master/assets/img11.png)
 
 ER DIAGRAM
+
 ![Image description](https://github.com/ria18405/PocketPills/blob/master/assets/er.png)
