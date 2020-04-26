@@ -99,3 +99,14 @@ def queries_1(request):
 
     else:
         return render(request,"articles/queries_1.html")
+
+def queries_7(request):
+    if (request.method == 'POST'):
+
+        mycursor = mydb.cursor()
+        x = usquery_7(mycursor,86)
+        return render(request, "articles/queries_7.html", {'x': x})
+
+
+    else:
+        return render(request, "articles/queries_7.html")

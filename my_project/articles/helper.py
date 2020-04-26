@@ -1,3 +1,9 @@
+import matplotlib.pyplot as plt
+import numpy as np
+import django
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from matplotlib.backends.backend_agg import FigureCanvasAgg
+from django.http import HttpResponse
 def usquery_2(mycursor,drug):
 
     output = []
@@ -81,3 +87,25 @@ def usquery_1(mycursor, id):
     return output
 
 
+def usquery_7(mycursor,id):
+    mycursor.execute("select odate,count(*) from Orderr where uid=" + str(id) + " group by odate order by odate asc")
+    res = mycursor.fetchall()
+
+    objects = ()
+    for d in res:
+        objects += (d[0],)
+    y_pos = np.arange(len(objects))
+    counts = []
+    for d in res:
+        counts.append(d[1])
+
+    plt.bar(y_pos, counts, align='center', alpha=0.5)
+    plt.xticks(y_pos, objects)
+    plt.ylabel('No. of orders')
+    plt.title('Orders on some date')
+    plt.show(block=False)
+
+    canvas = FigureCanvas(plt)
+    response = django.http.HttpResponse(content_type='image/png')
+    canvas.print_png(response)
+    return response
