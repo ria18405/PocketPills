@@ -319,7 +319,7 @@ def docquery(id):
         print("Input Sickness")
         sickness = input()
         mycursor.execute(
-            "SELECT Drug.drID,Drug.drname,sickness,symptoms,avg(Drugreviews.rating),Drug.price from Drug,Orderr,DrugReviews where DrugReviews.OID = Orderr.OID AND Drug.DrID=Orderr.DrID   AND ( Drug.symptoms LIKE '%" + symp + "%' OR Drug.sickness LIKE '%" + sickness + "%') group by Drug.drid")
+            "SELECT Drug.drID,Drug.drname,sickness,symptoms,avg(DrugReviews.rating),Drug.price from Drug,Orderr,DrugReviews where DrugReviews.OID = Orderr.OID AND Drug.DrID=Orderr.DrID   AND ( Drug.symptoms LIKE '%" + symp + "%' OR Drug.sickness LIKE '%" + sickness + "%') group by Drug.drid")
         res = mycursor.fetchall()
         if len(res) == 0:
             print("No results.")
@@ -366,7 +366,7 @@ def docquery(id):
             symp = res[0][0]
             sickness = res[0][1]
             mycursor.execute(
-                "SELECT Drug.drID,Drug.drname,sickness,symptoms,avg(Drugreviews.rating),Drug.price from Drug,Orderr,DrugReviews where DrugReviews.OID = Orderr.OID AND Drug.DrID=Orderr.DrID   AND ( Drug.symptoms LIKE '%" + symp + "%' OR Drug.sickness LIKE '%" + sickness + "%') group by Drug.drid")
+                "SELECT Drug.drID,Drug.drname,sickness,symptoms,avg(DrugReviews.rating),Drug.price from Drug,Orderr,DrugReviews where DrugReviews.OID = Orderr.OID AND Drug.DrID=Orderr.DrID   AND ( Drug.symptoms LIKE '%" + symp + "%' OR Drug.sickness LIKE '%" + sickness + "%') group by Drug.drid")
             res = mycursor.fetchall()
 
             for d in res:
@@ -382,7 +382,7 @@ def docquery(id):
                 if d[0] not in dridpr:
                     print("ID:%s Name:%s Sickness: %s symptoms: %s Price:%s" % (d[0], d[1], d[2], d[3], d[4]))
     if ch==8:
-        mycursor.execute("select sdate,count(*) from openslots where did="+str(id)+" group by sdate order by sdate asc")
+        mycursor.execute("select sdate,count(*) from OpenSlots where did="+str(id)+" group by sdate order by sdate asc")
         res=mycursor.fetchall()
 
         objects = ()
@@ -399,7 +399,7 @@ def docquery(id):
         plt.show(block=False)
 
     if ch==9:
-        mycursor.execute("select sdate,count(*) from openslots,appointment where openslots.sid=appointment.sid and did="+str(id)+" group by sdate order by sdate asc")
+        mycursor.execute("select sdate,count(*) from OpenSlots,Appointment where Openlots.sid=Appointment.sid and did="+str(id)+" group by sdate order by sdate asc")
         res=mycursor.fetchall()
 
         objects = ()
@@ -470,7 +470,7 @@ def compquery(id):
         print("Input Sickness")
         sickness = input()
         mycursor.execute(
-            "SELECT Drug.drID,Drug.drname,sickness,symptoms,avg(Drugreviews.rating),CID,Drug.price from Drug,Orderr,DrugReviews where DrugReviews.OID = Orderr.OID AND Drug.DrID=Orderr.DrID   AND ( Drug.symptoms LIKE '%" + symp + "%' OR Drug.sickness LIKE '%" + sickness + "%') group by Drug.drid")
+            "SELECT Drug.drID,Drug.drname,sickness,symptoms,avg(DrugReviews.rating),CID,Drug.price from Drug,Orderr,DrugReviews where DrugReviews.OID = Orderr.OID AND Drug.DrID=Orderr.DrID   AND ( Drug.symptoms LIKE '%" + symp + "%' OR Drug.sickness LIKE '%" + sickness + "%') group by Drug.drid")
         res = mycursor.fetchall()
         if len(res) == 0:
             print("No results.")
@@ -496,7 +496,7 @@ def compquery(id):
                 print("ID:%s Name:%s Rating:%5s" % (d[0], d[1], round(d[2], 2)))
     if ch==6:
         mycursor.execute(
-            "SELECT symptoms,sum(orderr.price/drug.price) FROM Drug,Orderr WHERE Drug.DrID=Orderr.DrID group by symptoms order by sum(orderr.price/drug.price) desc")
+            "SELECT symptoms,sum(Orderr.price/Drug.price) FROM Drug,Orderr WHERE Drug.DrID=Orderr.DrID group by symptoms order by sum(Orderr.price/Drug.price) desc")
         res = mycursor.fetchall()
         if len(res) == 0:
             print("No results.")
@@ -510,7 +510,7 @@ def compquery(id):
                     break
         print("\n")
         mycursor.execute(
-            "SELECT sickness,sum(orderr.price/drug.price) FROM Drug,Orderr WHERE Drug.DrID=Orderr.DrID group by sickness order by sum(orderr.price/drug.price) desc")
+            "SELECT sickness,sum(Orderr.price/Drug.price) FROM Drug,Orderr WHERE Drug.DrID=Orderr.DrID group by sickness order by sum(Orderr.price/Drug.price) desc")
         res = mycursor.fetchall()
         if len(res) == 0:
             print("No results.")
@@ -524,7 +524,7 @@ def compquery(id):
                     break
     if ch==7:
         mycursor.execute(
-            "SELECT CID, sum(orderr.price/drug.price) FROM Orderr,Drug WHERE Drug.DrID=Orderr.DrID GROUP BY drug.cid order by sum(orderr.price/drug.price) desc")
+            "SELECT CID, sum(Orderr.price/Drug.price) FROM Orderr,Drug WHERE Drug.DrID=Orderr.DrID GROUP BY Drug.cid order by sum(Orderr.price/Drug.price) desc")
         res = mycursor.fetchall()
         su=0
         loc=-1
@@ -560,8 +560,8 @@ def compquery(id):
 
     if ch==8:
         mycursor.execute(
-            "SELECT drug.DRID FROM Orderr,Drug WHERE Drug.DrID=Orderr.DrID AND CID=" + str(
-                id)+" group by drug.drid order by sum(orderr.price/drug.price) desc")
+            "SELECT Drug.DRID FROM Orderr,Drug WHERE Drug.DrID=Orderr.DrID AND CID=" + str(
+                id)+" group by Drug.drid order by sum(Orderr.price/Drug.price) desc")
         res = mycursor.fetchall()
         if len(res)==0:
             dr=-1
@@ -569,7 +569,7 @@ def compquery(id):
             dr=res[0][0]
         # print(dr)
         mycursor.execute(
-            "SELECT Drug.DrID, sum(orderr.price/drug.price) FROM Orderr,Drug WHERE Drug.DrID=Orderr.DrID GROUP BY drug.drid order by sum(orderr.price/drug.price) desc")
+            "SELECT Drug.DrID, sum(Orderr.price/Drug.price) FROM Orderr,Drug WHERE Drug.DrID=Orderr.DrID GROUP BY Drug.drid order by sum(Orderr.price/Drug.price) desc")
         res = mycursor.fetchall()
         # print(res)
         su = 0
@@ -609,7 +609,7 @@ def compquery(id):
     if ch==9:
         print("Enter Drug-ID")
         drid=input()
-        mycursor.execute("select odate,sum(orderr.price/drug.price) from orderr,drug where drug.drid=orderr.drid and drug.drid="+str(drid)+" group by odate order by odate asc")
+        mycursor.execute("select odate,sum(Orderr.price/Drug.price) from Orderr,Drug where Drug.drid=Orderr.drid and Drug.drid="+str(drid)+" group by odate order by odate asc")
         res=mycursor.fetchall()
 
         objects = ()
@@ -672,7 +672,7 @@ def labquery(id):
     if ch == 3:
         mycursor.execute("Select city from lab where labID=" + str(id))
         city = mycursor.fetchall()[0][0]
-        mycursor.execute("SELECT lab.LabID, lab.lname, lab.tests, AVG(LabReviews.rating) FROM Test,Lab,LabReviews WHERE Lab.LabID=Test.LabID AND Test.Tid=LabReviews.Tid and city=\""+city+"\" group by lab.labid;")
+        mycursor.execute("SELECT Lab.LabID, Lab.lname, Lab.tests, AVG(LabReviews.rating) FROM Test,Lab,LabReviews WHERE Lab.LabID=Test.LabID AND Test.Tid=LabReviews.Tid and city=\""+city+"\" group by Lab.labid;")
         res = mycursor.fetchall()
         if len(res) == 0:
             print("No results.")
@@ -699,7 +699,7 @@ def labquery(id):
                 print("Test ID:%s Rating:%5s" % (d[0],round(d[1], 2)))
     if ch==6:
         print("Most Popular Worldwide:")
-        mycursor.execute("Select Tests,count(*) from test group by tests order by count(*) desc")
+        mycursor.execute("Select Tests,count(*) from Test group by tests order by count(*) desc")
         res = mycursor.fetchall()
         if len(res) == 0:
             print("No results.")
@@ -711,10 +711,10 @@ def labquery(id):
                 if i < 1:
                     break
         print("\n")
-        mycursor.execute("Select city from lab where labid="+str(id))
+        mycursor.execute("Select city from Lab where labid="+str(id))
         city=mycursor.fetchall()[0][0]
 
-        mycursor.execute("Select test.Tests,count(*) from test,lab where lab.labid=test.labid and lab.city=\""+city+"\" group by  tests order by count(*) desc")
+        mycursor.execute("Select Test.Tests,count(*) from Test,Lab where Lab.labid=Test.labid and Lab.city=\""+city+"\" group by  tests order by count(*) desc")
         res = mycursor.fetchall()
         if len(res) == 0:
             print("No results.")
@@ -813,7 +813,7 @@ def labquery(id):
         plt.show(block=False)
 
     if ch==9:
-        mycursor.execute("select tdate,count(*) from test where labid="+str(id)+" group by tdate order by tdate asc")
+        mycursor.execute("select tdate,count(*) from Test where labid="+str(id)+" group by tdate order by tdate asc")
         res=mycursor.fetchall()
 
         objects = ()
@@ -881,7 +881,7 @@ def daquery(id):
         print("Input city:")
         city=input()
         mycursor.execute(
-            "SELECT Delivery.daid,DAname,avg(DeliveryReviews.rating) FROM orderr,Delivery,DeliveryAgency,DeliveryReviews WHERE orderr.OID=Delivery.OID and Delivery.DaID=DeliveryAgency.DaID AND Delivery.DeID=DeliveryReviews.DeID and Orderr.city=\""+city+"\" group by delivery.DAID;")
+            "SELECT Delivery.daid,DAname,avg(DeliveryReviews.rating) FROM Orderr,Delivery,DeliveryAgency,DeliveryReviews WHERE Orderr.OID=Delivery.OID and Delivery.DaID=DeliveryAgency.DaID AND Delivery.DeID=DeliveryReviews.DeID and Orderr.city=\""+city+"\" group by delivery.DAID;")
         res = mycursor.fetchall()
         if len(res) == 0:
             print("No results.")
@@ -892,7 +892,7 @@ def daquery(id):
     if ch==4:
         print("Input DeliveryID")
         deid=int(input())
-        mycursor.execute("select deid,orderr.streetadress,orderr.city,phone,destatus,eta,daid from orderr,delivery,userr where userr.uid=orderr.uid and orderr.oid=delivery.oid and delivery.deid="+str(deid))
+        mycursor.execute("select deid,Orderr.streetadress,Orderr.city,phone,destatus,eta,daid from Orderr,delivery,Userr where Userr.uid=Orderr.uid and Orderr.oid=delivery.oid and delivery.deid="+str(deid))
         res = mycursor.fetchall()
         if len(res) == 0:
             print("No results.")
@@ -911,7 +911,7 @@ def daquery(id):
                 print("Delivery ID:%s Rating:%5s" % (d[0], round(d[1], 2)))
     if ch == 6:
         mycursor.execute(
-            "SELECT Orderr.postalcode,sum(price) FROM Delivery,Orderr WHERE Orderr.OID=Delivery.OID GROUP BY orderr.postalcode order by sum(price) desc;")
+            "SELECT Orderr.postalcode,sum(price) FROM Delivery,Orderr WHERE Orderr.OID=Delivery.OID GROUP BY Orderr.postalcode order by sum(price) desc;")
 
         res = mycursor.fetchall()
         if len(res) == 0:
@@ -925,7 +925,7 @@ def daquery(id):
                     break
     if ch==7:
         mycursor.execute(
-            "SELECT delivery.daid,sum(orderr.price) FROM delivery,orderr where orderr.oid=delivery.oid GROUP BY daid order by count(*) desc")
+            "SELECT delivery.daid,sum(Orderr.price) FROM delivery,Orderr where Orderr.oid=delivery.oid GROUP BY daid order by count(*) desc")
         res = mycursor.fetchall()
         su=0
         loc=-1
@@ -964,14 +964,14 @@ def daquery(id):
 
     if ch==8:
         mycursor.execute(
-            "SELECT postalcode,sum(orderr.price) FROM delivery,orderr where orderr.oid=delivery.oid and daid="+str(id)+"  group by postalcode order by sum(price) desc")
+            "SELECT postalcode,sum(Orderr.price) FROM delivery,Orderr where Orderr.oid=delivery.oid and daid="+str(id)+"  group by postalcode order by sum(price) desc")
         res = mycursor.fetchall()
         if len(res)==0:
             dr=-1
         else:
             dr=res[0][0]
         # print(dr)
-        mycursor.execute("SELECT postalcode,sum(orderr.price) FROM delivery,orderr where orderr.oid=delivery.oid group by postalcode order by sum(price) desc")
+        mycursor.execute("SELECT postalcode,sum(Orderr.price) FROM delivery,Orderr where Orderr.oid=delivery.oid group by postalcode order by sum(price) desc")
         res = mycursor.fetchall()
         # print(res)
         # print(res)
@@ -1059,7 +1059,7 @@ def retquery(id):
                 print("ID:%s Name:%s Price:%s" % (d[0], d[1], d[2]))
     if ch==2:
         mycursor.execute(
-            "SELECT OID,Drug.DrID,Drname,symptoms,sickness,orderr.price/drug.price FROM Drug,Orderr WHERE Drug.DrID=Orderr.DrID and UID="+str(id))
+            "SELECT OID,Drug.DrID,Drname,symptoms,sickness,Orderr.price/Drug.price FROM Drug,Orderr WHERE Drug.DrID=Orderr.DrID and UID="+str(id))
         res = mycursor.fetchall()
         if len(res) == 0:
             print("No results.")
@@ -1069,7 +1069,7 @@ def retquery(id):
 
     if ch==3:
         mycursor.execute(
-            "SELECT Drug.DrID,Drname,symptoms,sickness,sum(orderr.price/drug.price) FROM Drug,Orderr WHERE Drug.DrID=Orderr.DrID group by drug.drid order by sum(orderr.price/drug.price) desc")
+            "SELECT Drug.DrID,Drname,symptoms,sickness,sum(Orderr.price/Drug.price) FROM Drug,Orderr WHERE Drug.DrID=Orderr.DrID group by Drug.drid order by sum(Orderr.price/Drug.price) desc")
         res = mycursor.fetchall()
         if len(res) == 0:
             print("No results.")
@@ -1088,7 +1088,7 @@ def retquery(id):
         print("Input Sickness")
         sickness = input()
         mycursor.execute(
-            "SELECT Drug.drID,Drug.drname,sickness,symptoms,avg(Drugreviews.rating),Drug.price from Drug,Orderr,DrugReviews where DrugReviews.OID = Orderr.OID AND Drug.DrID=Orderr.DrID   AND ( Drug.symptoms LIKE '%" + symp + "%' OR Drug.sickness LIKE '%" + sickness + "%') group by Drug.drid")
+            "SELECT Drug.drID,Drug.drname,sickness,symptoms,avg(DrugReviews.rating),Drug.price from Drug,Orderr,DrugReviews where DrugReviews.OID = Orderr.OID AND Drug.DrID=Orderr.DrID   AND ( Drug.symptoms LIKE '%" + symp + "%' OR Drug.sickness LIKE '%" + sickness + "%') group by Drug.drid")
         res = mycursor.fetchall()
         if len(res) == 0:
             print("No results.")
@@ -1110,7 +1110,7 @@ def retquery(id):
         drugid = input()
         if ch == 5:
             mycursor.execute(
-                "SELECT Drug.DrID,DrName,Avg(DrugReviews.rating) FROM Drug,Orderr,DrugReviews WHERE Drug.DrID=Orderr.DrID AND Orderr.OID = DrugReviews.OID AND Drug.drid="+str(drugid)+ " group by drug.drid")
+                "SELECT Drug.DrID,DrName,Avg(DrugReviews.rating) FROM Drug,Orderr,DrugReviews WHERE Drug.DrID=Orderr.DrID AND Orderr.OID = DrugReviews.OID AND Drug.drid="+str(drugid)+ " group by Drug.drid")
             res = mycursor.fetchall()
             if len(res) == 0:
                 print("No results.")
@@ -1119,7 +1119,7 @@ def retquery(id):
                     print("DrugID:%s Name:%s Rating:%5s" % (d[0],d[1], round(d[2], 2)))
 
     if ch==6:
-        mycursor.execute("SELECT symptoms,sickness from orderr,drug where uid="+str(id)+" and drug.drid=orderr.drid group by drug.drid order by sum(orderr.price/drug.price) desc;")
+        mycursor.execute("SELECT symptoms,sickness from Orderr,Drug where uid="+str(id)+" and Drug.drid=Orderr.drid group by Drug.drid order by sum(Orderr.price/Drug.price) desc;")
         res = mycursor.fetchall()
         if len(res) == 0:
             print("No results.")
@@ -1143,7 +1143,7 @@ def retquery(id):
                     print("ID:%s Name:%s Sickness: %s symptoms: %s Price:%s" % (d[0], d[1],d[2],d[3],  d[4]))
 
     if ch==7:
-        mycursor.execute("select odate,count(*) from orderr where uid="+str(id)+" group by odate order by odate asc")
+        mycursor.execute("select odate,count(*) from Orderr where uid="+str(id)+" group by odate order by odate asc")
         res=mycursor.fetchall()
 
         objects = ()
