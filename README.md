@@ -1,6 +1,26 @@
 ## POCKETPILLS
 
-#### Setting up the project:
+#### APPLICATION: 
+
+POCKETPILLS is an online medical facility where our registered users will get the pleasure and ease of e-consultancy by highly specialised and rated doctors. In case of a need for a physical diagnostic, doctors can also schedule an appointment. Users get the facility to purchase the prescribed medicines easily with door to door delivery service available at affordable rates.
+
+
+#### STAKEHOLDERS
+
+* **User** demanding prescription and purchasing medicines
+
+* **Company** accessing database to check and maintain the stock of medicines and available specialised doctors. 
+
+* **Doctors** dealing with their patients and scheduling their appointments.
+
+* **Small Pharmacy Retailers** who will have the facility to purchase medicines at wholesale rate from the website. 
+
+* **Delivery Agencies** who will need the delivery details of the recipient. 
+
+* **Diagnostic Labs** needing access to a patient’s medical details and the required lab facility needed. 
+
+
+#### Setting up the system:
 
 1. Run Healthcare_7.sql
 2. Run DataEntry1.sql
@@ -26,26 +46,6 @@
 4. If there are any unapplied migrations, run `python manage.py migrate`
 
 5. Check the local site at `http://127.0.0.1:8000/`
-
-
-#### APPLICATION: 
-
-POCKETPILLS is an online medical facility where our registered users will get the pleasure and ease of e-consultancy by highly specialised and rated doctors. In case of a need for a physical diagnostic, doctors can also schedule an appointment. Users get the facility to purchase the prescribed medicines easily with door to door delivery service available at affordable rates.
-
-
-#### STAKEHOLDERS
-
-* **User** demanding prescription and purchasing medicines
-
-* **Company** accessing database to check and maintain the stock of medicines and available specialised doctors. 
-
-* **Doctors** dealing with their patients and scheduling their appointments.
-
-* **Small Pharmacy Retailers** who will have the facility to purchase medicines at wholesale rate from the website. 
-
-* **Delivery Agencies** who will need the delivery details of the recipient. 
-
-* **Diagnostic Labs** needing access to a patient’s medical details and the required lab facility needed. 
 
 
 ![Image description](https://github.com/ria18405/PocketPills/blob/master/assets/img1.png)
